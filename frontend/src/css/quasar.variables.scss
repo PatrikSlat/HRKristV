@@ -1,0 +1,52 @@
+// src/css/quasar.variables.scss
+
+// ----------------------------------------------------------------------------------------------
+// HRKrist Brand Colors
+//
+// Primarna boja: Koristi se za glavne elemente sučelja, headere, aktivne stavke.
+// Sekundarna boja: Koristi se za pozadine, manje istaknute elemente, podršku primarnoj.
+// Akcentna boja: Koristi se za isticanje (call-to-action gumbe, posebne obavijesti).
+//
+// Ostale boje (dark, positive, negative, info, warning) su standardne
+// UI boje koje Quasar koristi za različite kontekste (npr. notifikacije, validacija).
+// Preporučljivo ih je prilagoditi da se slažu s glavnom paletom.
+// ----------------------------------------------------------------------------------------------
+
+// Tvoja odabrana paleta
+$primary   : #4A90E2; // Smirena plava (npr. za header, aktivne linkove)
+$secondary : #F0F0F0; // Svijetlo siva (npr. za pozadinu stranice, kartice)
+$accent    : #FAD6A5; // Meka zlatna (npr. za istaknute gumbe, posebne detalje)
+
+// Dopunske Quasar boje usklađene s tvojom paletom
+$dark      : #263238; // Tamno sivo-plava (npr. za tekst, footer)
+$positive  : #4CAF50; // Ugodna zelena (za poruke o uspjehu)
+$negative  : #F44336; // Jasna crvena (za poruke o grešci)
+$info      : #2196F3; // Informativna plava (slična primarnoj)
+$warning   : #FFC107; // Topla žuta (za upozorenja)
+
+
+// ----------------------------------------------------------------------------------------------
+// Boje teksta na pozadinama (On-Colors)
+//
+// Quasar će pokušati automatski generirati odgovarajuću boju teksta
+// (crnu ili bijelu) na temelju svjetline pozadinske boje.
+// Ako automatski odabir nije dobar, možeš eksplicitno definirati ove varijable.
+// Npr., ako je $primary tamna, $on-primary bi trebala biti svijetla (npr. #FFFFFF).
+// ----------------------------------------------------------------------------------------------
+
+// $on-primary   : #fff; // Primjer: bijeli tekst na primarnoj boji
+// $on-secondary : $dark; // Primjer: tamni tekst na sekundarnoj boji
+// $on-accent    : $dark; // Primjer: tamni tekst na akcentnoj boji
+// $on-dark      : #fff; // Primjer: bijeli tekst na tamnoj boji
+
+
+// ----------------------------------------------------------------------------------------------
+// Ostale Quasar varijable koje možeš prilagoditi (opcionalno)
+// Možeš pronaći više informacija u Quasar dokumentaciji pod "Sass/SCSS Variables".
+// ----------------------------------------------------------------------------------------------
+
+// Primjer: Promjena zaobljenosti kutova za gumbe
+// $button-border-radius: 2px;
+
+// Primjer: Promjena defaultne sjene
+// $shadow-2: 0 3px 5px -1px rgba(0,0,0,.2), 0 5px 8px 0 rgba(0,0,0,.14), 0 1px 14px 0 rgba(0,0,0,.12);

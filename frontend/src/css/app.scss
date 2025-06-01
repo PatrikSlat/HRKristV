@@ -1,0 +1,13 @@
+// app global css in SCSS form
+// src/css/app.scss
+
+body {
+  background-color: $secondary;
+  color: $dark;
+  font-family: 'Roboto', sans-serif; // Ili tvoj odabrani font
+}
+
+.q-footer {
+  background-color: $dark;
+  color: $secondary; // Ili $on-dark ako si ga definirao i ako $secondary nije dovoljno kontrastna
+}
