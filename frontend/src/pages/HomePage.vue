@@ -1,53 +1,56 @@
 <template>
-  <q-page class="home-page q-pa-none"> <!-- q-pa-none da uklonimo defaultni padding od q-page -->
-    <!-- 1. Glavna Slika Ispod Navigacije -->
+  <q-page class="home-page q-pa-none bg-secondary">
     <section class="main-image-section">
       <q-img
         src="~assets/home_slika.png"
         alt="HRKrist Glavna Slika"
         :ratio="16/9"
         style="width: 100%; height: 40vh; display: block;"
+        fit="cover"
       >
         <template v-slot:error>
           <div class="absolute-full flex flex-center bg-negative text-white">
             Nije moguće učitati glavnu sliku.
           </div>
         </template>
-        <!-- Opcionalno: Ako želiš neki suptilni tekst preko ove slike, možeš ga dodati ovdje -->
-        <!--
-        <div class="absolute-bottom text-subtitle1 text-center q-pa-sm" style="background-color: rgba(0,0,0,0.5)">
-          HRKrist - Mjesto zajedništva i vjere
-        </div>
-        -->
       </q-img>
     </section>
 
-    <!-- Opcionalno: Mali razmak između slike i kartica -->
-    <div class="q-my-md"></div>
+    <section class="news-section q-py-xl q-px-md">
+      <div class="container">
+        <div class="row justify-center">
+          <div class="col-12 text-center">
+            <h2 class="section-title text-h3 text-primary q-mb-lg">
+              <q-icon name="feed" class="q-mr-sm" /> Najnovije Vijesti
+            </h2>
+            <q-separator spaced="lg" style="max-width: 150px; margin: 0 auto 40px auto;" color="primary" size="3px" />
+          </div>
+        </div>
 
-    <!-- 2. Sekcija s Vijestima (Kartice) -->
-    <section class="news-section q-px-md q-pb-md"> <!-- Dodan padding samo za ovu sekciju -->
-      <h2 class="text-h2 text-center q-mb-xl text-primary">Najnovije Vijesti</h2>
+        <div class="row q-col-gutter-xl justify-center">
+          <div
+            v-for="item in newsItems"
+            :key="item.id"
+            class="col-12 col-sm-6 col-md-4 flex"
+          >
+            <q-card class="news-card full-width" flat bordered v-ripple @click="openArticle(item.link)">
+              <q-img :src="item.image || defaultNewsImage" :ratio="16/9" class="news-card-image">
+                <template v-slot:error>
+                  <div class="absolute-full flex flex-center bg-grey-4 text-grey-8">
+                    Slika nije dostupna
+                  </div>
+                </template>
+              </q-img>
 
-      <div class="row q-col-gutter-lg justify-center">
-        <div
-          v-for="item in newsItems"
-          :key="item.id"
-          class="col-12 col-sm-6 col-md-4"
-        >
-          <q-card class="news-card cursor-pointer" @click="openArticle(item.link)" v-ripple>
-            <q-img :src="defaultNewsImage" :ratio="16/9">
-              <template v-slot:error>
-                <div class="absolute-full flex flex-center bg-grey-4 text-grey-8">
-                  Slika nije dostupna
-                </div>
-              </template>
-            </q-img>
+              <q-card-section class="q-pa-md">
+                <div class="text-h6 news-title ellipsis-2-lines q-mb-sm">{{ item.title }}</div>
+              </q-card-section>
 
-            <q-card-section>
-              <div class="text-h6 news-title ellipsis-2-lines">{{ item.title }}</div>
-            </q-card-section>
-          </q-card>
+              <q-card-actions align="right" class="q-pt-none q-pb-sm q-px-sm">
+                <q-btn flat dense color="primary" label="Detaljnije" icon-right="arrow_forward" />
+              </q-card-actions>
+            </q-card>
+          </div>
         </div>
       </div>
     </section>
@@ -61,60 +64,74 @@ defineOptions({
   name: 'HomePage'
 })
 
-// Ref za defaultnu sliku vijesti
 const defaultNewsImage = ref('')
+const newsItems = ref([])
 
-// Mock podaci za vijesti - sve kartice će imati isti naslov
-const newsItems = ref([
-  { id: 1, title: 'Aktualne vijesti iz zajednice', link: 'https://example.com/vijest1' },
-  { id: 2, title: 'Aktualne vijesti iz zajednice', link: 'https://example.com/vijest2' },
-  { id: 3, title: 'Aktualne vijesti iz zajednice', link: 'https://example.com/vijest3' },
-  { id: 4, title: 'Aktualne vijesti iz zajednice', link: 'https://example.com/vijest4' },
-  { id: 5, title: 'Aktualne vijesti iz zajednice', link: 'https://example.com/vijest5' },
-  { id: 6, title: 'Aktualne vijesti iz zajednice', link: 'https://example.com/vijest6' },
-])
-
-// Funkcija za otvaranje linka članka
 function openArticle(url) {
   if (url) {
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 }
 
-// Postavljanje defaultne slike koristeći dinamički import za Vite
+
+async function fetchNews() {
+  try {
+    const response = await fetch('https://newsdata.io/api/1/latest?apikey=pub_9ac77689fb1e4d0da5425805e0b564e6&q=crkva&language=hr')
+    const data = await response.json()
+    newsItems.value = (data.results || []).slice(0, 6).map((item, idx) => ({
+      id: idx + 1,
+      title: item.title || 'Naslov nije dostupan',
+      link: item.link || '#',
+      image: item.image_url
+    }))
+  } catch (error) {
+    console.error('Greška kod fetchanja vijesti:', error)
+    newsItems.value = []
+  }
+}
+
 onMounted(async () => {
   try {
-    const imageUrl = await import('../assets/default-news-image.png') // Pobrini se da ova datoteka postoji!
+    const imageUrl = await import('../assets/default-news-image.png')
     defaultNewsImage.value = imageUrl.default
   } catch (e) {
-    console.warn('Nije moguće učitati default-news-image.png iz assets. Provjerite putanju i da li datoteka postoji.', e);
+    console.warn('Nije moguće učitati default-news-image.png iz assets.', e)
     defaultNewsImage.value = 'https://via.placeholder.com/400x225.png?text=Slika+Nije+Dostupna'
   }
+  fetchNews()
 })
-
 </script>
 
 <style lang="scss" scoped>
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
+.main-image-section {
+  position: relative;
+}
 
-
-.news-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: $shadow-8;
+.main-image-caption {
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  h1 {
+    font-size: 3.5rem;
+    letter-spacing: 1px;
+     @media (max-width: $breakpoint-sm-max) {
+        font-size: 2.8rem;
+      }
+      @media (max-width: $breakpoint-xs-max) {
+        font-size: 2.2rem;
+      }
   }
-}
-
-.news-title {
-  min-height: 3em;
-  line-height: 1.5em;
-}
-
-.ellipsis-2-lines {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  p {
+    font-size: 1.4rem;
+    @media (max-width: $breakpoint-sm-max) {
+      font-size: 1.1rem;
+    }
+  }
 }
 </style>
