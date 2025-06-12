@@ -66,8 +66,20 @@
             <input type="text" name="extra-field-honeypot" v-model="formData.honeypot" tabindex="-1" autocomplete="off" />
           </div>
 
+          <!-- reCAPTCHA widget -->
+          <div class="q-mt-md flex flex-center">
+            <div ref="recaptcha"></div>
+          </div>
+
           <div class="q-mt-lg">
-            <q-btn label="Pošalji Prijavu" type="submit" color="primary" class="full-width" size="lg"/>
+            <q-btn
+              label="Pošalji Prijavu"
+              type="submit"
+              color="primary"
+              class="full-width"
+              size="lg"
+              :disable="!recaptchaToken"
+            />
             <q-btn label="Očisti" type="reset" color="primary" flat class="q-mt-sm full-width" />
           </div>
         </q-form>
@@ -77,7 +89,7 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
 
 export default defineComponent({
@@ -95,12 +107,32 @@ export default defineComponent({
       honeypot: '',
     });
 
+    const recaptchaSiteKey = '6LcHG14rAAAAAC0OGkLyXUJvaEQLpEQZu2aK2u-v'; // <-- novi key
+    const recaptcha = ref(null); // div za recaptchu
+    const recaptchaToken = ref('');
     const URL = "http://localhost:3000/api/registracija-zahtjev/organizator";
+
+    onMounted(() => {
+      recaptchaToken.value = '';
+      if (window.grecaptcha && recaptcha.value) {
+        window.grecaptcha.render(recaptcha.value, {
+          sitekey: recaptchaSiteKey,
+          callback: function(token) {
+            recaptchaToken.value = token;
+          }
+        });
+      }
+    });
 
     async function handleFormSubmit() {
       const isValid = await registrationFormRef.value.validate();
       if (!isValid) {
         console.log("Forma nije validna, korisnik treba ispraviti greške.");
+        return;
+      }
+
+      if (!recaptchaToken.value) {
+        alert("Molimo označite da niste robot!");
         return;
       }
 
@@ -116,11 +148,20 @@ export default defineComponent({
           kontaktOsoba: formData.value.kontaktOsoba,
           email: formData.value.email,
           telefon: formData.value.telefon,
-          poruka: formData.value.poruka
+          poruka: formData.value.poruka,
+          recaptchaToken: recaptchaToken.value, // <--- šalješ token backendu
         });
         onReset();
+        if (window.grecaptcha) {
+          window.grecaptcha.reset();
+        }
+        recaptchaToken.value = '';
       } catch (error) {
         console.error('Greška slanje:', error);
+        if (window.grecaptcha) {
+          window.grecaptcha.reset();
+        }
+        recaptchaToken.value = '';
       }
     }
 
@@ -137,6 +178,10 @@ export default defineComponent({
       if (registrationFormRef.value) {
         registrationFormRef.value.resetValidation();
       }
+      if (window.grecaptcha) {
+        window.grecaptcha.reset();
+      }
+      recaptchaToken.value = '';
     }
 
     return {
@@ -144,6 +189,8 @@ export default defineComponent({
       handleFormSubmit,
       onReset,
       registrationFormRef,
+      recaptcha,
+      recaptchaToken,
     };
   },
 });

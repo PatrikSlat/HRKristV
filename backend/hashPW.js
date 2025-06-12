@@ -1,4 +1,3 @@
-// scripts/hash_existing_passwords.js
 require('dotenv').config();
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
@@ -8,9 +7,6 @@ const BCRYPT_SALT_ROUNDS = 10; // Broj rundi za bcrypt salt
 async function hashPasswordsInTable(connection, tableName, idColumnName, passwordColumnName) {
   console.log(`\n--- Započinjem hashiranje za tablicu: ${tableName} ---`);
   try {
-    // Dohvati sve korisnike/adminke kojima lozinka još nije (vjerojatno) hashirana
-    // Ovaj uvjet je GRUBA PROCJENA - PRILAGODI AKO TREBA!
-    // Pretpostavlja da nehashirane lozinke nisu duže od 50 znakova i ne počinju s bcrypt prefiksom.
     const query = `SELECT ${idColumnName}, ${passwordColumnName} FROM ${tableName} WHERE LENGTH(${passwordColumnName}) < 60 AND NOT ${passwordColumnName} LIKE '$2a$%' AND NOT ${passwordColumnName} LIKE '$2b$%'`;
     const [users] = await connection.execute(query);
 
@@ -60,16 +56,7 @@ async function main() {
       database: process.env.DB_NAME,
     });
     console.log('Uspješno spojen na bazu podataka.');
-
-    // Hashiraj lozinke u tablici Organizator
-    // Prema tvom screenshotu, ID kolona je 'username_org' (što je neobično za primarni ključ, obično je INT ID),
-    // a kolona za lozinku je 'password'.
-    // Ako je 'username_org' stvarno primarni ključ i jedinstven, može se koristiti.
-    // Ako postoji numerički ID, bilo bi bolje njega koristiti. Pretpostavit ću da 'username_org' služi kao ID ovdje.
     await hashPasswordsInTable(connection, 'Organizator', 'username_org', 'password');
-
-    // Hashiraj lozinke u tablici Admin
-    // Prema tvom screenshotu, ID kolona je 'usernameAdmin', a kolona za lozinku je 'passwordAdmin'.
     await hashPasswordsInTable(connection, 'Administrator', 'usernameAdmin', 'passwordAdmin');
 
   } catch (error) {

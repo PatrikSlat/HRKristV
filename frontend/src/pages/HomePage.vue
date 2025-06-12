@@ -54,11 +54,27 @@
         </div>
       </div>
     </section>
+    <section class="q-py-xl flex flex-center download-section">
+      <q-btn
+        color="primary"
+        icon="download"
+        label="Preuzmi korisničku pomoć (PDF)"
+        :href="helpPdfUrl"
+        target="_blank"
+        flat
+        rounded
+        size="lg"
+        download
+        class="q-mt-lg"
+      />
+    </section>
   </q-page>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+
+const helpPdfUrl = '/korisnicka-pomoc.pdf'
 
 defineOptions({
   name: 'HomePage'

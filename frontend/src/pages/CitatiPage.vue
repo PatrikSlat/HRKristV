@@ -18,7 +18,7 @@
         <q-icon name="format_quote" color="accent" size="3rem" class="q-mb-md" />
 
         <blockquote class="text-h5 text-weight-light q-mb-md quote-text">
-          {{ verseText || "Učitavam citat..." }}
+          {{ verseText}}
         </blockquote>
 
         <div

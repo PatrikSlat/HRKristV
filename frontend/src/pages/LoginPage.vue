@@ -26,6 +26,11 @@
             autocomplete="current-password"
           />
 
+          <!-- reCAPTCHA widget -->
+          <div class="q-mt-md flex flex-center">
+            <div ref="recaptcha"></div>
+          </div>
+
           <div class="q-mt-lg">
             <q-btn
               label="Prijava"
@@ -33,6 +38,7 @@
               color="primary"
               class="full-width"
               size="lg"
+              :disable="!recaptchaToken"
             />
           </div>
         </q-form>
@@ -42,22 +48,38 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 const username = ref('');
 const password = ref('');
+const recaptchaToken = ref('');
 const loginFormRef = ref(null);
+const recaptcha = ref(null);
 const router = useRouter();
 
+const recaptchaSiteKey = '6LcHG14rAAAAAC0OGkLyXUJvaEQLpEQZu2aK2u-v';
 const API_LOGIN_URL = process.env.NODE_ENV === 'production'
   ? '/api/auth/login/organizator'
   : 'http://localhost:3000/api/auth/login/organizator';
 
+onMounted(() => {
+  recaptchaToken.value = '';
+  if (window.grecaptcha && recaptcha.value) {
+    window.grecaptcha.render(recaptcha.value, {
+      sitekey: recaptchaSiteKey,
+      callback: function(token) {
+        recaptchaToken.value = token;
+      }
+    });
+  }
+});
+
 async function handleLogin() {
   const isValid = await loginFormRef.value.validate();
-  if (!isValid) {
+  if (!isValid || !recaptchaToken.value) {
+    alert("Morate potvrditi da niste robot!");
     return;
   }
 
@@ -65,19 +87,29 @@ async function handleLogin() {
     const response = await axios.post(API_LOGIN_URL, {
       username: username.value,
       password: password.value,
+      recaptchaToken: recaptchaToken.value,
     });
 
     localStorage.setItem('jwt_token', response.data.token);
     localStorage.setItem('user', JSON.stringify(response.data.user));
 
     router.push({ name: 'adminDashboard' });
-
+    // Reset recaptcha
+    if (window.grecaptcha) {
+      window.grecaptcha.reset();
+    }
+    recaptchaToken.value = '';
   } catch (error) {
     if (error.response) {
       alert(error.response.data.message || 'Greška prilikom prijave!');
     } else {
       alert('Neuspjela prijava!');
     }
+    // Reset recaptcha na error
+    if (window.grecaptcha) {
+      window.grecaptcha.reset();
+    }
+    recaptchaToken.value = '';
     console.error('Greška prilikom prijave:', error);
   }
 }
