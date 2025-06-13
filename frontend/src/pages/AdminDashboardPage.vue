@@ -30,6 +30,10 @@
 </template>
 
 <script setup>
+const API = import.meta.env.PROD
+  ? 'https://hrkristv.onrender.com/api'
+  : 'http://localhost:3000/api';
+
 import { ref } from 'vue';
 import axios from 'axios';
 

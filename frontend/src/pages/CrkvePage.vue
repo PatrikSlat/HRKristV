@@ -40,6 +40,10 @@
 </template>
 
 <script setup>
+const API = import.meta.env.PROD
+  ? 'https://hrkristv.onrender.com/api'
+  : 'http://localhost:3000/api';
+
 import { ref, onMounted, onBeforeUnmount, markRaw } from 'vue';
 import axios from 'axios';
 import "leaflet/dist/leaflet.css";

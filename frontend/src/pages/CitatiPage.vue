@@ -68,6 +68,7 @@
 </template>
 
 <script setup>
+const API = import.meta.env.VITE_API_URL;
 import { ref, onMounted } from "vue";
 import axios from "axios";
 
