@@ -12,9 +12,6 @@
           @click="toggleLeftDrawer"
           class="q-mr-sm"
         />
-        <q-avatar class="q-ml-sm cursor-pointer" @click="navigateToHome">
-          <img src="~assets/logo.png" alt="HRKrist Logo" />
-        </q-avatar>
         <q-toolbar-title class="q-ml-sm cursor-pointer gt-xs" @click="navigateToHome">
           HRKrist
         </q-toolbar-title>
