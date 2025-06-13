@@ -1,4 +1,6 @@
 require("dotenv").config();
+//Odkomentirati prije testa... da bypassa captchu
+//process.env.NODE_ENV = 'test';
 
 const express = require("express");
 const app = express();
@@ -28,6 +30,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // -------- reCAPTCHA MIDDLEWARE --------
 async function verifyRecaptcha(req, res, next) {
+  // BYPASS ZA TEST OKRUŽENJE (ne šalje captcha na Google)
+  if (process.env.NODE_ENV === 'test') {
+    return next();
+  }
+
   const recaptchaToken = req.body.recaptchaToken;
   if (!recaptchaToken) {
     return res.status(400).json({ message: "reCAPTCHA validacija nije prošla. Pokušajte ponovo." });
@@ -48,6 +55,7 @@ async function verifyRecaptcha(req, res, next) {
     return res.status(500).json({ message: "Greška kod reCAPTCHA provjere.", error: error.message });
   }
 }
+
 
 
 async function checkDbConnection() {
@@ -128,7 +136,10 @@ app.post("/api/registracija-zahtjev/organizator", verifyRecaptcha, async (req, r
   }
 });
 
-// LOGIN RUTA ZA ORGANIZATORA + reCAPTCHA MIDDLEWARE
+// LOGIN RUTA ZA ORGANIZATORA 
+// LOGIN RUTA ZA ORGANIZATORA 
+// LOGIN RUTA ZA ORGANIZATORA 
+// LOGIN RUTA ZA ORGANIZATORA 
 app.post("/api/auth/login/organizator", verifyRecaptcha, async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -251,17 +262,19 @@ app.get('/api/dogadaji', async (req, res) => {
   }
 });
 
-// Pokretanje servera
+// Pokretanje servera /* */
 app.listen(PORT, async () => {
   console.log(`Server sluša na http://localhost:${PORT}`);
 });
 
+
+
+// Testovi odkomentiraj prije pokretanja
 /*
-//Testovi odkomentiraj prije pokretanja
 if (require.main === module) {
-app.listen(PORT, async () => {
-console.log(Server sluša na http://localhost:${PORT});
-});
+  app.listen(PORT, async () => {
+    console.log(`Server sluša na http://localhost:${PORT}`);
+  });
 }
 module.exports = app;
 */
